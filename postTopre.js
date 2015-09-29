@@ -15,6 +15,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
     // + orderData : object
     // + customerProfile : object
     // + productDetails : object
+    // + customerAddress : object
     // + propositionSelected : object
     // + priceplanSelected : object
     var payload = {};
@@ -29,7 +30,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
 
     //Execute first on page load
     it('get SSO Authen Header', function(done) {
-        var saleAgent = { 
+        var saleAgent = {
             "shopType": "0",
             "isSecondAuthen": true,
             "isCorporate": true,
@@ -91,9 +92,13 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                 //Expect customer contrain installed-product collection
                 expect(res.body["response-data"]["customer"]).to.have.property("installed-products");
                 expect(res.body["response-data"]["customer"]["installed-products"].length).to.above(0);
+                //address-list
+                expect(res.body["response-data"]["customer"]).to.have.property("address-list");
+                expect(res.body["response-data"]["customer"]["address-list"]).to.have.property("CUSTOMER_ADDRESS");
                 //Assign customer to customerProfile for scope
                 payload.customerProfile = res.body["response-data"]["customer"];
-                payload.productDetails = utils.getObject(customerProfile, 'installed-products.0');
+                payload.productDetails = res.body["response-data"]["customer"]["installed-products"][0];
+                payload.customerAddress = res.body["response-data"]["customer"]["address-list"]["CUSTOMER_ADDRESS"];
                 delete payload.customerProfile['installed-products'];
                 //Expect display-messages colection length == 0
                 expect(res.body).to.have.property("display-messages");
@@ -101,7 +106,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                 done();
             })
     });
-    
+
     //Execute After validatemigrateposttopre Success only
     it('proposition', function(done) {
         //Asign input data for service API [proposition]
@@ -130,7 +135,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                 //Assign response-data to dropdown propositions
                 collectionData.propositions = res.body["response-data"];
 
-                
+
                 //display-messages
                 expect(res.body).to.not.have.property("display-messages");
 
@@ -151,7 +156,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
 
         //receipt input proposition data from user
         payload.propositionSelected = collectionData.propositions[0];
-        
+
         var service_level = payload.propositionSelected['service-level']; // user selected proppo dropdown
         var proposition = payload.propositionSelected['proposition-code']; // user selected proppo dropdown
         var propositionName = payload.propositionSelected['name']; // user selected proppo dropdown
@@ -162,7 +167,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
             .set('Accept', 'application/json;charset=utf-8')
             .expect(200)
             .end(function(err, res) {
-                
+
                 expect(res.body).to.have.property("status");
                 expect(res.body).to.have.property("response-data");
                 expect(res.body["response-data"].length).to.above(0);
@@ -172,35 +177,51 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
 
                 //display-messages
                 expect(res.body).to.not.have.property("display-messages");
-                
+
                 done();
             })
     });
-    
+
     //Execute input & click print button
     it('vilidate input form', function(done) {
 
         payload.priceplanSelected = collectionData.priceplans[0];
 
-        payload.customerProfile['title-code']="T1";
-        payload.customerProfile['firstname']="ทดสอบ";
-        payload.customerProfile['lastname']="ชอบเติมเงิน";
+        payload.customerProfile['title-code'] = "T1";
+        payload.customerProfile['firstname'] = "ทดสอบ";
+        payload.customerProfile['lastname'] = "ชอบเติมเงิน";
         payload.customerProfile['id-type'] = "I";
-        payload.customerProfile['id-number']="3290200886926";
-        payload.customerProfile['birthdate']="1991-07-20T00:00:00+0700";
-        payload.customerProfile['id-expire-date']="2016-07-20T00:00:00+0700";
+        payload.customerProfile['id-number'] = "3290200886926";
+        payload.customerProfile['birthdate'] = "1991-07-20T00:00:00+0700";
+        payload.customerProfile['id-expire-date'] = "2016-07-20T00:00:00+0700";
         payload.customerProfile['language'] = "TH";
+
+        payload.customerAddress['number'] = "61/238";
+        payload.customerAddress['moo'] = "8";
+        payload.customerAddress['village'] = "valabordin";
+        payload.customerAddress['street'] = "lumlukka";
+        payload.customerAddress['district'] = "lumlukka";
+        payload.customerAddress['province'] = "pratumtane";
+        payload.customerAddress['building-name'] = "";
+        payload.customerAddress['building-room'] = "";
+        payload.customerAddress['building-floor'] = "";
+        payload.customerAddress['sub-district'] = "lumlukka";
+        payload.customerAddress['zip'] = "12150";
+        payload.customerAddress['household'] = "";
 
         //Fix value becuase migrate post to pre support personal only
         payload.productDetails['account-category'] = "P";
         payload.productDetails['account-sub-type'] = "PRE";
+
+        //
+
 
         //follow validate fields under this comment
         expect(payload.propositionSelected).to.have.property("name");
         expect(payload.propositionSelected).to.have.property("proposition-code");
 
         expect(payload.priceplanSelected).to.have.property("name");
-        
+
         expect(payload.customerProfile).to.have.property("title-code");
         expect(payload.customerProfile['title-code']).to.not.equal("");
 
@@ -241,7 +262,9 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                     // "customer_sublevel_id": payload.customerProfile['customer_sublevel_id'],
                     // "customer_sublevel": payload.customerProfile['customer_sublevel'],
                     ////////////////////////////////////////////////
-                    //"address-list": payload.customerProfile['address-list'],
+                    "address-list": {
+                        "CUSTOMER_ADDRESS": payload.customerAddress
+                    },
                     // "customer-agents": {
                     //     "AUTH_1": {
                     //         "contact": "0868836665",
@@ -280,7 +303,7 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                 },
                 "order-items": [{
                     "name": "MIGRATE_POST_TO_PRE",
-                    "product-name": payload.priceplanSelected["name"], 
+                    "product-name": payload.priceplanSelected["name"],
                     "product-id-number": payload.productDetails['product-id-number'],
                     "product-id-name": payload.productDetails['product-id-name'],
                     "product-category": payload.productDetails['product-category'],
@@ -289,36 +312,8 @@ describe('TDD Migrate PostToPre Normal Flow (' + msisdn + ')', function() {
                     "reason-code": "AA02",
                     //"user-memo": "Customer want to request .",
                     "address-list": {
-                        "BILLING_ADDRESS": {
-                            "number": "61/268",
-                            "moo": "8",
-                            "village": "moo ban",
-                            "street": "ratchada",
-                            "soi": "8",
-                            "district": "dindaeng",
-                            "province": "Pathumthani",
-                            "building-name": "Pakin",
-                            "building-room": "22",
-                            "building-floor": "13",
-                            "sub-district": "Dindaeng",
-                            "zip": "22222",
-                            "household": "18"
-                        },
-                        "TAX_ADDRESS": {
-                            "number": "61/268",
-                            "moo": "8",
-                            "village": "moo ban",
-                            "street": "ratchada",
-                            "soi": "8",
-                            "district": "dindaeng",
-                            "province": "Pathumthani",
-                            "building-name": "Pakin",
-                            "building-room": "22",
-                            "building-floor": "13",
-                            "sub-district": "Dindaeng",
-                            "zip": "22222",
-                            "household": "18"
-                        }
+                        "BILLING_ADDRESS": payload.customerAddress,
+                        "TAX_ADDRESS": payload.customerAddress
                     },
                     // "order-data": {
                     //     "IMSI": null,
