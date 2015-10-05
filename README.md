@@ -1,7 +1,7 @@
 # cyber-tdd-restapi
 ขั้นตอนการ install 
 
-npm install - g mocha
+npm install -g mocha
 
 npm install
 

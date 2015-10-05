@@ -25,8 +25,8 @@ describe('TDD Migrate PostToPre Normal Flow ', function() {
     //properties
     // + propositions : collection of object
     // + priceplans : collection of object
-    // + titles : collection of object (but I don't have get service in this sernario)
-    // + resons : collection of object (but I don't have get service in this sernario)
+    // + titles : collection of object (but I don't have get service in this scenario)
+    // + resons : collection of object (but I don't have get service in this scenario)
     var collectionData = {};
 
     //Execute first on page load
@@ -387,8 +387,8 @@ describe('TDD Migrate PostToPre Exception Flow  Case Not Allow Migrate', functio
     //properties
     // + propositions : collection of object
     // + priceplans : collection of object
-    // + titles : collection of object (but I don't have get service in this sernario)
-    // + resons : collection of object (but I don't have get service in this sernario)
+    // + titles : collection of object (but I don't have get service in this scenario)
+    // + resons : collection of object (but I don't have get service in this scenario)
     var collectionData = {};
 
     //Execute first on page load
@@ -458,8 +458,5 @@ describe('TDD Migrate PostToPre Exception Flow  Case Not Allow Migrate', functio
                 done();
             })
     });
-
-    
-
 
 });
